@@ -30,8 +30,6 @@
 #include "zend_interfaces.h"
 #include "ext/spl/spl_iterators.h"
 
-zend_class_entry *Indexed_ce;
-
 #include "php_indexed_object.h"
 #include "php_indexed_iterator.h"
 

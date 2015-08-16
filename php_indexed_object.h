@@ -26,6 +26,8 @@ typedef struct _php_indexed_t {
 	zend_object  std;
 } php_indexed_t;
 
+zend_class_entry *Indexed_ce;
+
 #define PHP_INDEXED_FETCH_FROM(o)	((php_indexed_t*) (((char*)o) - XtOffsetOf(php_indexed_t, std)))
 #define PHP_INDEXED_FETCH(z)		PHP_INDEXED_FETCH_FROM(Z_OBJ_P(z))
 
