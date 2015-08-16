@@ -181,6 +181,7 @@ static inline void php_indexed_set_data(php_indexed_t *pl, HashTable *data) {
 /* {{{ */
 ZEND_BEGIN_ARG_INFO_EX(Indexed_construct_arginfo, 0, 0, 1)
 	ZEND_ARG_TYPE_INFO(0, size, IS_LONG, 0)
+	ZEND_ARG_TYPE_INFO(0, data, IS_ARRAY, 1)
 ZEND_END_ARG_INFO()
 
 PHP_METHOD(Indexed, __construct)
@@ -201,7 +202,7 @@ PHP_METHOD(Indexed, __construct)
 /* }}} */
 
 /* {{{ */
-ZEND_BEGIN_ARG_INFO_EX(Indexed_count_arginfo, 0, 0, 0)
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(Indexed_count_arginfo, 0, 0, IS_LONG, NULL, 1)
 ZEND_END_ARG_INFO()
 
 PHP_METHOD(Indexed, count) {

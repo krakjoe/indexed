@@ -11,7 +11,7 @@ This extension implements the following abstract:
 
 		public function offsetGet(int $index);
 		public function offsetSet(int $index, $value);
-		public function offsetExists(int $index);
+		public function offsetExists(int $index) : bool;
 		public function offsetUnset(int $index);
 
 		public function count() : int;
