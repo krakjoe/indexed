@@ -165,7 +165,7 @@ static inline int php_indexed_cast(zval *indexed, zval *retval, int type) {
 
 static inline zval* php_indexed_read(zval *object, zval *member, int type, void **cache_slot, zval *rv) {
 	PHP_INDEXED_NO_PROPERTIES();
-	return NULL;
+	return &EG(uninitialized_zval);
 }
 
 static inline void php_indexed_write(zval *object, zval *member, zval *value, void **cache_slot) {
@@ -223,7 +223,7 @@ static inline void php_indexed_set_data(php_indexed_t *pi, HashTable *data) {
 	if (pi->size < zend_hash_num_elements(data))
 		php_indexed_resize(pi, zend_hash_num_elements(data));
 
-	items = pi->data;	
+	items = pi->data;
 
 	ZEND_HASH_FOREACH_VAL(data, item) {
 		ZVAL_COPY(items++, item);

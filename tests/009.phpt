@@ -6,7 +6,7 @@ Indexed properties
 <?php
 $array = new Indexed(1);
 
-$array->property = "something";
+var_dump($array->property);
 ?>
 --EXPECTF--
 Fatal error: Uncaught Exception: properties on Indexed objects are not allowed in %s:4
