@@ -131,6 +131,25 @@ static inline zend_object* php_indexed_clone(zval *object) {
 } /* }}} */
 
 /* {{{ */
+static inline int php_indexed_cast(zval *indexed, zval *retval, int type) {
+	php_indexed_t *pl = PHP_INDEXED_FETCH(indexed);
+	zend_long it;
+
+	if (type != IS_ARRAY) {
+		return FAILURE;
+	}
+
+	array_init(retval);
+
+	for (it = 0; it < pl->size; it++) {
+		if (add_next_index_zval(retval, &pl->data[it])) 
+			Z_TRY_ADDREF(pl->data[it]);
+	}
+	
+	return SUCCESS;
+} /* }}} */
+
+/* {{{ */
 static inline void php_indexed_resize(php_indexed_t *pl, zend_long resize) {
 	while (resize < pl->size) {
 		if (Z_TYPE(pl->data[pl->size-1]) != IS_UNDEF)
@@ -325,6 +344,8 @@ PHP_MINIT_FUNCTION(indexed)
 	php_indexed_handlers.get_gc   = php_indexed_gc;
 	php_indexed_handlers.get_debug_info = php_indexed_dump;
 	php_indexed_handlers.clone_obj = php_indexed_clone;
+	php_indexed_handlers.cast_object = php_indexed_cast;
+	php_indexed_handlers.get_properties = NULL;
 
 	php_indexed_handlers.offset = XtOffsetOf(php_indexed_t, std);
 	
