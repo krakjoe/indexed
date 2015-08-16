@@ -3,7 +3,7 @@ Indexed casting to array
 --SKIPIF--
 <?php if (!extension_loaded("indexed")) print "skip"; ?>
 --FILE--
-<?php 
+<?php
 $array = new Indexed(2, [
 	"Hello",
 	"World"

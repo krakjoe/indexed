@@ -145,7 +145,7 @@ static inline int php_indexed_cast(zval *indexed, zval *retval, int type) {
 		if (add_next_index_zval(retval, &pl->data[it])) 
 			Z_TRY_ADDREF(pl->data[it]);
 	}
-	
+
 	return SUCCESS;
 } /* }}} */
 
@@ -169,7 +169,7 @@ static inline void php_indexed_set_data(php_indexed_t *pl, HashTable *data) {
 	zval      *items;
 	
 	if (pl->size < zend_hash_num_elements(data))
-		php_indexed_resize(pl, zend_hash_num_elementS(data));
+		php_indexed_resize(pl, zend_hash_num_elements(data));
 
 	items = pl->data;	
 
