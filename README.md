@@ -23,10 +23,9 @@ This touches upon all of the following Zend subjects:
 
  - custom zend objects
  - implementing internal interfaces
- - paramters and optional parameters
+ - paramters, optional parameters, return types
  - casting objects
  - interfacing with garbage collector
  - dealing with reference counting/copying
  - implementing cloning
- - various aspects of arginfo and return type info
  - testing
