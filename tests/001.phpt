@@ -36,7 +36,7 @@ object(Indexed)#1 (2) {
 }
 bool(true)
 bool(true)
-object(Indexed)#1 (2) {
+object(Indexed)#1 (1) {
   [0]=>
   string(5) "Hello"
 }

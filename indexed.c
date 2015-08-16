@@ -117,16 +117,16 @@ static inline HashTable* php_indexed_dump(zval *indexed, int *is_temp) {
 	php_indexed_t *pl = PHP_INDEXED_FETCH(indexed);
 	HashTable *ht;
 	zend_long it;
-	
+
 	ALLOC_HASHTABLE(ht);
 	zend_hash_init(ht, pl->size, NULL, ZVAL_PTR_DTOR, 0);
 	*is_temp = 1;
 
 	for (it = 0; it < pl->size; it++) {
-		if (zend_hash_next_index_insert(ht, &pl->data[it])) {
+		if (Z_TYPE(pl->data[it]) != IS_UNDEF && 
+		    zend_hash_index_update(ht, it, &pl->data[it])) {
 			Z_TRY_ADDREF(pl->data[it]);
 		}
-		
 	}
 
 	php_indexed_dump_properties(pl, ht);
@@ -145,8 +145,10 @@ static inline zend_object* php_indexed_clone(zval *object) {
 	cl->std.handlers = &php_indexed_handlers;	
 
 	cl->data = (zval*) ecalloc(pl->size, sizeof(zval));
+
 	for (it = 0; it < pl->size; it++)
 		ZVAL_COPY(&cl->data[it], &pl->data[it]);
+
 	cl->size = pl->size;
 
 	return &cl->std;
@@ -395,9 +397,8 @@ PHP_MINIT_FUNCTION(indexed)
 	Indexed_ce->get_iterator = php_indexed_iterator;
 
 	zend_class_implements(
-		Indexed_ce, 2, 
-		spl_ce_ArrayAccess, 
-		spl_ce_Countable);
+		Indexed_ce, 2,
+		spl_ce_ArrayAccess, spl_ce_Countable);
 
 	zh = zend_get_std_object_handlers();
 
