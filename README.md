@@ -7,7 +7,7 @@ Indexed
 This extension implements the following abstract:
 
 	class Indexed implements ArrayAccess, Countable {
-		public function __construct(int $size);
+		public function __construct(int $size, array $data = []);
 
 		public function __offsetGet(int $index);
 		public function __offsetSet(int $index, $value);
@@ -23,6 +23,7 @@ This touches upon all of the following Zend subjects:
 
  - custom zend objects
  - implementing internal interfaces
+ - paramters and optional parameters
  - interfacing with garbage collector
  - dealing with reference counting/copying
  - implementing cloning

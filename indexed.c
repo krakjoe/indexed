@@ -131,6 +131,35 @@ static inline zend_object* php_indexed_clone(zval *object) {
 } /* }}} */
 
 /* {{{ */
+static inline void php_indexed_resize(php_indexed_t *pl, zend_long resize) {
+	while (resize < pl->size) {
+		if (Z_TYPE(pl->data[pl->size-1]) != IS_UNDEF)
+			zval_ptr_dtor(&pl->data[pl->size-1]);
+		pl->size--;
+	}
+
+	pl->data = erealloc(pl->data, sizeof(zval) * resize);
+
+	while (pl->size < resize)
+		ZVAL_UNDEF(&pl->data[pl->size++]);
+} /* }}} */
+
+/* {{{ */
+static inline void php_indexed_set_data(php_indexed_t *pl, HashTable *data) {
+	zval      *item;
+	zval      *items;
+	
+	if (pl->size < zend_hash_num_elements(data))
+		php_indexed_resize(pl, zend_hash_num_elementS(data));
+
+	items = pl->data;	
+
+	ZEND_HASH_FOREACH_VAL(data, item) {
+		ZVAL_COPY(items++, item);
+	} ZEND_HASH_FOREACH_END();
+} /* }}} */
+
+/* {{{ */
 ZEND_BEGIN_ARG_INFO_EX(Indexed_construct_arginfo, 0, 0, 1)
 	ZEND_ARG_INFO(0, size)
 ZEND_END_ARG_INFO()
@@ -138,12 +167,17 @@ ZEND_END_ARG_INFO()
 PHP_METHOD(Indexed, __construct)
 {
 	php_indexed_t *pl = PHP_INDEXED_FETCH(getThis());
+	HashTable     *data = NULL;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS(), "l", &pl->size) != SUCCESS) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "l|H", &pl->size, &data) != SUCCESS) {
 		return;
 	}
 
 	pl->data = (zval*) ecalloc(sizeof(zval), pl->size);
+
+	if (data) {
+		php_indexed_set_data(pl, data);
+	}		
 }
 /* }}} */
 
@@ -255,16 +289,7 @@ PHP_METHOD(Indexed, resize)
 		return;
 	}
 
-	while (resize < pl->size) {
-		if (Z_TYPE(pl->data[pl->size-1]) != IS_UNDEF)
-			zval_ptr_dtor(&pl->data[pl->size-1]);
-		pl->size--;
-	}
-
-	pl->data = erealloc(pl->data, sizeof(zval) * resize);
-
-	while (pl->size < resize)
-		ZVAL_UNDEF(&pl->data[pl->size++]);
+	php_indexed_resize(pl, resize);
 } /* }}} */
 
 /* {{{ */
