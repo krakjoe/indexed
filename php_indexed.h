@@ -24,7 +24,7 @@
 extern zend_module_entry indexed_module_entry;
 #define phpext_indexed_ptr &indexed_module_entry
 
-#define PHP_INDEXED_VERSION "0.1.0" /* Replace with version number for your extension */
+#define PHP_INDEXED_VERSION "0.0.1"
 
 #ifdef PHP_WIN32
 #	define PHP_INDEXED_API __declspec(dllexport)

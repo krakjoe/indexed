@@ -32,19 +32,10 @@
 
 zend_class_entry *Indexed_ce;
 
-typedef struct _php_indexed_t {
-	zval        *data;
-	zend_long    size;
-	zend_object  std;
-} php_indexed_t;
-
 zend_object_handlers php_indexed_handlers;
 
-#define PHP_INDEXED_FETCH_FROM(o)	((php_indexed_t*) (((char*)o) - XtOffsetOf(php_indexed_t, std)))
-#define PHP_INDEXED_FETCH(z)		PHP_INDEXED_FETCH_FROM(Z_OBJ_P(z))
-
-#include "php_indexed_iterator.h"
 #include "php_indexed_object.h"
+#include "php_indexed_iterator.h"
 
 #define PHP_INDEXED_CHECK(pi, i)	do {\
 	if ((i) >= (pi)->size) {\
