@@ -377,6 +377,7 @@ PHP_MINIT_FUNCTION(indexed)
 		spl_ce_ArrayAccess, 
 		spl_ce_Countable);
 	Indexed_ce->get_iterator = php_indexed_iterator;
+	Indexed_ce->ce_flags |= ZEND_ACC_FINAL;
 
 	zh = zend_get_std_object_handlers();
 
