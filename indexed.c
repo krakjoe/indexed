@@ -142,6 +142,8 @@ static inline zend_object* php_indexed_clone(zval *object) {
 
 	zend_object_std_init(&cl->std, pl->std.ce);
 
+	object_properties_init(&cl->std, cl->std.ce);
+
 	cl->std.handlers = &php_indexed_handlers;	
 
 	cl->data = (zval*) ecalloc(pl->size, sizeof(zval));
@@ -166,8 +168,10 @@ static inline int php_indexed_cast(zval *indexed, zval *retval, int type) {
 	array_init(retval);
 
 	for (it = 0; it < pl->size; it++) {
-		if (add_next_index_zval(retval, &pl->data[it])) 
+		if (Z_TYPE(pl->data[it]) != IS_UNDEF && 
+		    add_next_index_zval(retval, &pl->data[it])) {
 			Z_TRY_ADDREF(pl->data[it]);
+		}
 	}
 
 	return SUCCESS;
@@ -207,7 +211,10 @@ static inline void php_indexed_flip(zval *indexed, zval *retval) {
 static inline void php_indexed_set_data(php_indexed_t *pl, HashTable *data) {
 	zval      *item;
 	zval      *items;
-	
+
+	if (!data)
+		return;	
+
 	if (pl->size < zend_hash_num_elements(data))
 		php_indexed_resize(pl, zend_hash_num_elements(data));
 
@@ -235,9 +242,7 @@ PHP_METHOD(Indexed, __construct)
 
 	pl->data = (zval*) ecalloc(sizeof(zval), pl->size);
 
-	if (data) {
-		php_indexed_set_data(pl, data);
-	}		
+	php_indexed_set_data(pl, data);	
 }
 /* }}} */
 
