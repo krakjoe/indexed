@@ -93,7 +93,7 @@ static inline HashTable* php_indexed_gc(zval *indexed, zval **table, int *n) {
 	*table = pl->data;
 	*n = pl->size;
 
-	return NULL;
+	return pl->std.properties;
 } /* }}} */
 
 /* {{{ */
