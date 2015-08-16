@@ -32,8 +32,6 @@
 
 zend_class_entry *Indexed_ce;
 
-zend_object_handlers php_indexed_handlers;
-
 #include "php_indexed_object.h"
 #include "php_indexed_iterator.h"
 
@@ -220,7 +218,6 @@ static zend_function_entry Indexed_methods[] = {
 PHP_MINIT_FUNCTION(indexed)
 {
 	zend_class_entry ce;
-	zend_object_handlers *zh;
 	
 	INIT_CLASS_ENTRY(ce, "Indexed", Indexed_methods);
 	Indexed_ce = zend_register_internal_class(&ce);
@@ -232,24 +229,7 @@ PHP_MINIT_FUNCTION(indexed)
 		Indexed_ce, 2,
 		spl_ce_ArrayAccess, spl_ce_Countable);
 
-	zh = zend_get_std_object_handlers();
-
-	memcpy(&php_indexed_handlers, zh, sizeof(zend_object_handlers));
-
-	php_indexed_handlers.free_obj = php_indexed_free;
-	php_indexed_handlers.get_gc   = php_indexed_gc;
-	php_indexed_handlers.get_debug_info = php_indexed_dump;
-	php_indexed_handlers.clone_obj = php_indexed_clone;
-	php_indexed_handlers.cast_object = php_indexed_cast;
-
-	php_indexed_handlers.read_property = php_indexed_read;
-	php_indexed_handlers.write_property = php_indexed_write;
-	php_indexed_handlers.has_property = php_indexed_exists;
-	php_indexed_handlers.unset_property = php_indexed_unset;
-
-	php_indexed_handlers.get_properties = NULL;
-
-	php_indexed_handlers.offset = XtOffsetOf(php_indexed_t, std);
+	php_indexed_minit();
 	
 	return SUCCESS;
 }

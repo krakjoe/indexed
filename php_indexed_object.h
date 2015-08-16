@@ -29,20 +29,10 @@ typedef struct _php_indexed_t {
 #define PHP_INDEXED_FETCH_FROM(o)	((php_indexed_t*) (((char*)o) - XtOffsetOf(php_indexed_t, std)))
 #define PHP_INDEXED_FETCH(z)		PHP_INDEXED_FETCH_FROM(Z_OBJ_P(z))
 
+void php_indexed_minit(void);
+
 zend_object* php_indexed_create(zend_class_entry *ce);
-void php_indexed_free(zend_object *o);
-HashTable* php_indexed_gc(zval *indexed, zval **table, int *n);
-HashTable* php_indexed_dump(zval *indexed, int *is_temp);
-zend_object* php_indexed_clone(zval *object);
-int php_indexed_cast(zval *indexed, zval *retval, int type);
-
-zval* php_indexed_read(zval *object, zval *member, int type, void **cache_slot, zval *rv);
-void php_indexed_write(zval *object, zval *member, zval *value, void **cache_slot);
-int php_indexed_exists(zval *object, zval *member, int has_set_exists, void **cache_slot);
-void php_indexed_unset(zval *object, zval *member, void **cache_slot);
-
 void php_indexed_resize(php_indexed_t *pi, zend_long resize);
 void php_indexed_flip(zval *indexed, zval *retval);
-
 void php_indexed_set_data(php_indexed_t *pi, HashTable *data);
 #endif
