@@ -392,11 +392,12 @@ PHP_MINIT_FUNCTION(indexed)
 	INIT_CLASS_ENTRY(ce, "Indexed", Indexed_methods);
 	Indexed_ce = zend_register_internal_class(&ce);
 	Indexed_ce->create_object = php_indexed_create;
+	Indexed_ce->get_iterator = php_indexed_iterator;
+
 	zend_class_implements(
 		Indexed_ce, 2, 
 		spl_ce_ArrayAccess, 
 		spl_ce_Countable);
-	Indexed_ce->get_iterator = php_indexed_iterator;
 
 	zh = zend_get_std_object_handlers();
 
