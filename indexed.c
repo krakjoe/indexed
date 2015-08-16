@@ -166,6 +166,22 @@ static inline void php_indexed_resize(php_indexed_t *pl, zend_long resize) {
 } /* }}} */
 
 /* {{{ */
+static inline void php_indexed_flip(zval *indexed, zval *retval) {
+	php_indexed_t *pl = PHP_INDEXED_FETCH(indexed), 
+		      *pf;
+	zend_long it;
+
+	object_init_ex(retval, pl->std.ce);
+	
+	pf = PHP_INDEXED_FETCH(retval);
+	pf->size = pl->size;
+	pf->data = (zval*) ecalloc(pf->size, sizeof(zval));
+	
+	for (it = pf->size; it > 0; it--)
+		ZVAL_COPY(&pf->data[(pf->size) - it], &pl->data[it - 1]);
+} /* }}} */
+
+/* {{{ */
 static inline void php_indexed_set_data(php_indexed_t *pl, HashTable *data) {
 	zval      *item;
 	zval      *items;
@@ -320,6 +336,20 @@ PHP_METHOD(Indexed, resize)
 } /* }}} */
 
 /* {{{ */
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(Indexed_flip_arginfo, 0, 0, IS_OBJECT, "Indexed", 1)
+ZEND_END_ARG_INFO()
+
+PHP_METHOD(Indexed, flip)
+{
+	if (zend_parse_parameters_none() != SUCCESS) {
+		return;	
+	}
+
+	php_indexed_flip(getThis(), return_value);
+}
+/* }}} */
+
+/* {{{ */
 static zend_function_entry Indexed_methods[] = {
 	PHP_ME(Indexed, __construct,  Indexed_construct_arginfo, ZEND_ACC_PUBLIC)
 	PHP_ME(Indexed, count,        Indexed_count_arginfo,     ZEND_ACC_PUBLIC)
@@ -328,6 +358,7 @@ static zend_function_entry Indexed_methods[] = {
 	PHP_ME(Indexed, offsetUnset,  Indexed_unset_arginfo,     ZEND_ACC_PUBLIC)
 	PHP_ME(Indexed, offsetExists, Indexed_exists_arginfo,    ZEND_ACC_PUBLIC)
 	PHP_ME(Indexed, resize,	      Indexed_resize_arginfo,    ZEND_ACC_PUBLIC)
+	PHP_ME(Indexed, flip,	      Indexed_flip_arginfo,      ZEND_ACC_PUBLIC)
 	PHP_FE_END
 }; /* }}} */
 
