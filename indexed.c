@@ -179,7 +179,6 @@ static inline int php_indexed_exists(zval *object, zval *member, int has_set_exi
 
 static inline void php_indexed_unset(zval *object, zval *member, void **cache_slot) {
 	PHP_INDEXED_NO_PROPERTIES();
-	return;
 } /* }}} */
 
 /* {{{ */
