@@ -66,6 +66,8 @@ static inline zend_object* php_indexed_create(zend_class_entry *ce) {
 
 	zend_object_std_init(&pl->std, ce);
 
+	object_properties_init(&pl->std, ce);
+
 	pl->std.handlers = &php_indexed_handlers;	
 
 	return &pl->std;
@@ -97,19 +99,37 @@ static inline HashTable* php_indexed_gc(zval *indexed, zval **table, int *n) {
 } /* }}} */
 
 /* {{{ */
+static inline void php_indexed_dump_properties(php_indexed_t *pl, HashTable *ht) {
+	zend_string *prop;
+	zval        *member;
+
+	rebuild_object_properties(&pl->std);
+
+	ZEND_HASH_FOREACH_STR_KEY_VAL(pl->std.properties, prop, member) {
+		if (zend_hash_update(ht, prop, member)) {
+			Z_TRY_ADDREF_P(member);
+		}
+	} ZEND_HASH_FOREACH_END();
+} /* }}} */
+
+/* {{{ */
 static inline HashTable* php_indexed_dump(zval *indexed, int *is_temp) {
 	php_indexed_t *pl = PHP_INDEXED_FETCH(indexed);
 	HashTable *ht;
-	zend_long it = 0;
+	zend_long it;
 	
 	ALLOC_HASHTABLE(ht);
 	zend_hash_init(ht, pl->size, NULL, ZVAL_PTR_DTOR, 0);
 	*is_temp = 1;
 
-	for (; it < pl->size; it++) {
-		zend_hash_next_index_insert(ht, &pl->data[it]);
-		Z_TRY_ADDREF(pl->data[it]);
+	for (it = 0; it < pl->size; it++) {
+		if (zend_hash_next_index_insert(ht, &pl->data[it])) {
+			Z_TRY_ADDREF(pl->data[it]);
+		}
+		
 	}
+
+	php_indexed_dump_properties(pl, ht);
 	
 	return ht;
 } /* }}} */
