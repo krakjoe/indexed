@@ -4,24 +4,15 @@ Indexed properties
 <?php if (!extension_loaded("indexed")) print "skip"; ?>
 --FILE--
 <?php
-$array = new Indexed(2, [
-	"Hello",
-	"World"
-]);
+$array = new Indexed(1);
 
-$array->property = $array;
-
-var_dump($array);
+$array->property = "something";
 ?>
---EXPECT--
-object(Indexed)#1 (3) {
-  [0]=>
-  string(5) "Hello"
-  [1]=>
-  string(5) "World"
-  ["property"]=>
-  *RECURSION*
-}
+--EXPECTF--
+Fatal error: Uncaught Exception: properties on Indexed objects are not allowed in %s:4
+Stack trace:
+#0 {main}
+  thrown in %s on line 4
 
 
 

@@ -6,7 +6,7 @@ Indexed
 
 This extension implements the following abstract:
 
-	class Indexed implements ArrayAccess, Countable {
+	final class Indexed implements ArrayAccess, Countable {
 		/* for ArrayAccess */
 		public function offsetGet(int $index);
 		public function offsetSet(int $index, $value);
