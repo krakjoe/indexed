@@ -9,7 +9,7 @@
   | available through the world-wide-web at the following url:           |
   | http://www.php.net/license/3_01.txt                                  |
   | If you did not receive a copy of the PHP license and are unable to   |
-  | obtain it through the world-wide-web, please send a note to          |
+  | obtain it through the world-wide-web, piease send a note to          |
   | license@php.net so we can mail you a copy immediately.               |
   +----------------------------------------------------------------------+
   | Author: krakjoe                                                      |
@@ -45,44 +45,44 @@ zend_object_handlers php_indexed_handlers;
 
 #include "php_indexed_iterator.h"
 
-#define PHP_INDEXED_CHECK(pl, i)	do {\
-	if ((i) >= (pl)->size) {\
+#define PHP_INDEXED_CHECK(pi, i)	do {\
+	if ((i) >= (pi)->size) {\
 		zend_throw_exception_ex(NULL, 0, "index %ld is OOB", (i)); \
 		return; \
 	} \
 	if ((i) < 0) { \
-		if ((pl)->size + (i) < 0) { \
-			zend_throw_exception_ex(NULL, 0, "index %ld (%d) is OOB", (i), (pl)->size + (i)); \
+		if ((pi)->size + (i) < 0) { \
+			zend_throw_exception_ex(NULL, 0, "index %ld (%d) is OOB", (i), (pi)->size + (i)); \
 			return; \
 		} \
-		(i) = (pl)->size + (i);\
+		(i) = (pi)->size + (i);\
 	} \
 } while(0)
 
 /* {{{ */
 static inline zend_object* php_indexed_create(zend_class_entry *ce) {
-	php_indexed_t *pl = 
+	php_indexed_t *pi = 
 		(php_indexed_t*) ecalloc(1, sizeof(php_indexed_t));
 
-	zend_object_std_init(&pl->std, ce);
+	zend_object_std_init(&pi->std, ce);
 
-	object_properties_init(&pl->std, ce);
+	object_properties_init(&pi->std, ce);
 
-	pl->std.handlers = &php_indexed_handlers;	
+	pi->std.handlers = &php_indexed_handlers;	
 
-	return &pl->std;
+	return &pi->std;
 } /* }}} */
 
 /* {{{ */
 static inline void php_indexed_free(zend_object *o) {
-	php_indexed_t *pl = PHP_INDEXED_FETCH_FROM(o);
+	php_indexed_t *pi = PHP_INDEXED_FETCH_FROM(o);
 	
-	if (pl->data) {
-		zend_long it = 0, end = pl->size;
+	if (pi->data) {
+		zend_long it = 0, end = pi->size;
 
 		for (; it < end; it++)
-			zval_ptr_dtor(&pl->data[it]);
-		efree(pl->data);
+			zval_ptr_dtor(&pi->data[it]);
+		efree(pi->data);
 	}
 
 	zend_object_std_dtor(o);
@@ -90,22 +90,22 @@ static inline void php_indexed_free(zend_object *o) {
 
 /* {{{ */
 static inline HashTable* php_indexed_gc(zval *indexed, zval **table, int *n) {
-	php_indexed_t *pl = PHP_INDEXED_FETCH(indexed);
+	php_indexed_t *pi = PHP_INDEXED_FETCH(indexed);
 
-	*table = pl->data;
-	*n = pl->size;
+	*table = pi->data;
+	*n = pi->size;
 
-	return pl->std.properties;
+	return pi->std.properties;
 } /* }}} */
 
 /* {{{ */
-static inline void php_indexed_dump_properties(php_indexed_t *pl, HashTable *ht) {
+static inline void php_indexed_dump_properties(php_indexed_t *pi, HashTable *ht) {
 	zend_string *prop;
 	zval        *member;
 
-	rebuild_object_properties(&pl->std);
+	rebuild_object_properties(&pi->std);
 
-	ZEND_HASH_FOREACH_STR_KEY_VAL(pl->std.properties, prop, member) {
+	ZEND_HASH_FOREACH_STR_KEY_VAL(pi->std.properties, prop, member) {
 		if (zend_hash_update(ht, prop, member)) {
 			Z_TRY_ADDREF_P(member);
 		}
@@ -114,51 +114,51 @@ static inline void php_indexed_dump_properties(php_indexed_t *pl, HashTable *ht)
 
 /* {{{ */
 static inline HashTable* php_indexed_dump(zval *indexed, int *is_temp) {
-	php_indexed_t *pl = PHP_INDEXED_FETCH(indexed);
+	php_indexed_t *pi = PHP_INDEXED_FETCH(indexed);
 	HashTable *ht;
 	zend_long it;
 
 	ALLOC_HASHTABLE(ht);
-	zend_hash_init(ht, pl->size, NULL, ZVAL_PTR_DTOR, 0);
+	zend_hash_init(ht, pi->size, NULL, ZVAL_PTR_DTOR, 0);
 	*is_temp = 1;
 
-	for (it = 0; it < pl->size; it++) {
-		if (Z_TYPE(pl->data[it]) != IS_UNDEF && 
-		    zend_hash_index_update(ht, it, &pl->data[it])) {
-			Z_TRY_ADDREF(pl->data[it]);
+	for (it = 0; it < pi->size; it++) {
+		if (Z_TYPE(pi->data[it]) != IS_UNDEF && 
+		    zend_hash_index_update(ht, it, &pi->data[it])) {
+			Z_TRY_ADDREF(pi->data[it]);
 		}
 	}
 
-	php_indexed_dump_properties(pl, ht);
+	php_indexed_dump_properties(pi, ht);
 	
 	return ht;
 } /* }}} */
 
 /* {{{ */
 static inline zend_object* php_indexed_clone(zval *object) {
-	php_indexed_t *pl = PHP_INDEXED_FETCH(object);
+	php_indexed_t *pi = PHP_INDEXED_FETCH(object);
 	php_indexed_t *cl = (php_indexed_t*) ecalloc(1, sizeof(php_indexed_t));
 	zend_long it;
 
-	zend_object_std_init(&cl->std, pl->std.ce);
+	zend_object_std_init(&cl->std, pi->std.ce);
 
 	object_properties_init(&cl->std, cl->std.ce);
 
 	cl->std.handlers = &php_indexed_handlers;	
 
-	cl->data = (zval*) ecalloc(pl->size, sizeof(zval));
+	cl->data = (zval*) ecalloc(pi->size, sizeof(zval));
 
-	for (it = 0; it < pl->size; it++)
-		ZVAL_COPY(&cl->data[it], &pl->data[it]);
+	for (it = 0; it < pi->size; it++)
+		ZVAL_COPY(&cl->data[it], &pi->data[it]);
 
-	cl->size = pl->size;
+	cl->size = pi->size;
 
 	return &cl->std;
 } /* }}} */
 
 /* {{{ */
 static inline int php_indexed_cast(zval *indexed, zval *retval, int type) {
-	php_indexed_t *pl = PHP_INDEXED_FETCH(indexed);
+	php_indexed_t *pi = PHP_INDEXED_FETCH(indexed);
 	zend_long it;
 
 	if (type != IS_ARRAY) {
@@ -167,10 +167,10 @@ static inline int php_indexed_cast(zval *indexed, zval *retval, int type) {
 
 	array_init(retval);
 
-	for (it = 0; it < pl->size; it++) {
-		if (Z_TYPE(pl->data[it]) != IS_UNDEF && 
-		    add_next_index_zval(retval, &pl->data[it])) {
-			Z_TRY_ADDREF(pl->data[it]);
+	for (it = 0; it < pi->size; it++) {
+		if (Z_TYPE(pi->data[it]) != IS_UNDEF && 
+		    add_next_index_zval(retval, &pi->data[it])) {
+			Z_TRY_ADDREF(pi->data[it]);
 		}
 	}
 
@@ -178,47 +178,47 @@ static inline int php_indexed_cast(zval *indexed, zval *retval, int type) {
 } /* }}} */
 
 /* {{{ */
-static inline void php_indexed_resize(php_indexed_t *pl, zend_long resize) {
-	while (resize < pl->size) {
-		if (Z_TYPE(pl->data[pl->size-1]) != IS_UNDEF)
-			zval_ptr_dtor(&pl->data[pl->size-1]);
-		pl->size--;
+static inline void php_indexed_resize(php_indexed_t *pi, zend_long resize) {
+	while (resize < pi->size) {
+		if (Z_TYPE(pi->data[pi->size-1]) != IS_UNDEF)
+			zval_ptr_dtor(&pi->data[pi->size-1]);
+		pi->size--;
 	}
 
-	pl->data = erealloc(pl->data, sizeof(zval) * resize);
+	pi->data = erealloc(pi->data, sizeof(zval) * resize);
 
-	while (pl->size < resize)
-		ZVAL_UNDEF(&pl->data[pl->size++]);
+	while (pi->size < resize)
+		ZVAL_UNDEF(&pi->data[pi->size++]);
 } /* }}} */
 
 /* {{{ */
 static inline void php_indexed_flip(zval *indexed, zval *retval) {
-	php_indexed_t *pl = PHP_INDEXED_FETCH(indexed), 
+	php_indexed_t *pi = PHP_INDEXED_FETCH(indexed), 
 		      *pf;
 	zend_long it;
 
-	object_init_ex(retval, pl->std.ce);
+	object_init_ex(retval, pi->std.ce);
 	
 	pf = PHP_INDEXED_FETCH(retval);
-	pf->size = pl->size;
+	pf->size = pi->size;
 	pf->data = (zval*) ecalloc(pf->size, sizeof(zval));
 	
 	for (it = pf->size; it > 0; it--)
-		ZVAL_COPY(&pf->data[(pf->size) - it], &pl->data[it - 1]);
+		ZVAL_COPY(&pf->data[(pf->size) - it], &pi->data[it - 1]);
 } /* }}} */
 
 /* {{{ */
-static inline void php_indexed_set_data(php_indexed_t *pl, HashTable *data) {
+static inline void php_indexed_set_data(php_indexed_t *pi, HashTable *data) {
 	zval      *item;
 	zval      *items;
 
 	if (!data)
 		return;	
 
-	if (pl->size < zend_hash_num_elements(data))
-		php_indexed_resize(pl, zend_hash_num_elements(data));
+	if (pi->size < zend_hash_num_elements(data))
+		php_indexed_resize(pi, zend_hash_num_elements(data));
 
-	items = pl->data;	
+	items = pi->data;	
 
 	ZEND_HASH_FOREACH_VAL(data, item) {
 		ZVAL_COPY(items++, item);
@@ -233,16 +233,16 @@ ZEND_END_ARG_INFO()
 
 PHP_METHOD(Indexed, __construct)
 {
-	php_indexed_t *pl = PHP_INDEXED_FETCH(getThis());
+	php_indexed_t *pi = PHP_INDEXED_FETCH(getThis());
 	HashTable     *data = NULL;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS(), "l|H", &pl->size, &data) != SUCCESS) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "l|H", &pi->size, &data) != SUCCESS) {
 		return;
 	}
 
-	pl->data = (zval*) ecalloc(sizeof(zval), pl->size);
+	pi->data = (zval*) ecalloc(sizeof(zval), pi->size);
 
-	php_indexed_set_data(pl, data);	
+	php_indexed_set_data(pi, data);	
 }
 /* }}} */
 
@@ -251,13 +251,13 @@ ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(Indexed_count_arginfo, 0, 0, IS_LONG, NU
 ZEND_END_ARG_INFO()
 
 PHP_METHOD(Indexed, count) {
-	php_indexed_t *pl = PHP_INDEXED_FETCH(getThis());
+	php_indexed_t *pi = PHP_INDEXED_FETCH(getThis());
 
 	if (zend_parse_parameters_none() != SUCCESS) {
 		return;
 	}
 	
-	RETURN_LONG(pl->size);
+	RETURN_LONG(pi->size);
 } /* }}} */
 
 /* {{{ */
@@ -267,7 +267,7 @@ ZEND_BEGIN_ARG_INFO_EX(Indexed_set_arginfo, 0, 0, 2)
 ZEND_END_ARG_INFO()
 
 PHP_METHOD(Indexed, offsetSet) {
-	php_indexed_t *pl = PHP_INDEXED_FETCH(getThis());
+	php_indexed_t *pi = PHP_INDEXED_FETCH(getThis());
 	zend_long index;
 	zval *value;
 
@@ -275,13 +275,13 @@ PHP_METHOD(Indexed, offsetSet) {
 		return;
 	}
 
-	PHP_INDEXED_CHECK(pl, index);
+	PHP_INDEXED_CHECK(pi, index);
 
-	if (Z_TYPE(pl->data[index]) != IS_UNDEF) {
-		zval_ptr_dtor(&pl->data[index]);
+	if (Z_TYPE(pi->data[index]) != IS_UNDEF) {
+		zval_ptr_dtor(&pi->data[index]);
 	}
 
-	ZVAL_COPY(&pl->data[index], value);
+	ZVAL_COPY(&pi->data[index], value);
 } /* }}} */
 
 /* {{{ */
@@ -291,17 +291,17 @@ ZEND_END_ARG_INFO()
 
 PHP_METHOD(Indexed, offsetGet) 
 {
-	php_indexed_t *pl = PHP_INDEXED_FETCH(getThis());
+	php_indexed_t *pi = PHP_INDEXED_FETCH(getThis());
 	zend_long index;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "l", &index) != SUCCESS) {
 		return;
 	}
 	
-	PHP_INDEXED_CHECK(pl, index);
+	PHP_INDEXED_CHECK(pi, index);
 
-	if (Z_TYPE(pl->data[index]) != IS_UNDEF)
-		ZVAL_COPY(return_value, &pl->data[index]);
+	if (Z_TYPE(pi->data[index]) != IS_UNDEF)
+		ZVAL_COPY(return_value, &pi->data[index]);
 } /* }}} */
 
 /* {{{ */
@@ -311,18 +311,18 @@ ZEND_END_ARG_INFO()
 
 PHP_METHOD(Indexed, offsetUnset) 
 {
-	php_indexed_t *pl = PHP_INDEXED_FETCH(getThis());
+	php_indexed_t *pi = PHP_INDEXED_FETCH(getThis());
 	zend_long index;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "l", &index) != SUCCESS) {
 		return;
 	}
 	
-	PHP_INDEXED_CHECK(pl, index);
+	PHP_INDEXED_CHECK(pi, index);
 	
-	if (Z_TYPE(pl->data[index]) != IS_UNDEF) {
-		zval_ptr_dtor(&pl->data[index]);
-		ZVAL_UNDEF(&pl->data[index]);
+	if (Z_TYPE(pi->data[index]) != IS_UNDEF) {
+		zval_ptr_dtor(&pi->data[index]);
+		ZVAL_UNDEF(&pi->data[index]);
 	}
 } /* }}} */
 
@@ -333,16 +333,16 @@ ZEND_END_ARG_INFO()
 
 PHP_METHOD(Indexed, offsetExists) 
 {
-	php_indexed_t *pl = PHP_INDEXED_FETCH(getThis());
+	php_indexed_t *pi = PHP_INDEXED_FETCH(getThis());
 	zend_long index;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "l", &index) != SUCCESS) {
 		return;
 	}
 	
-	PHP_INDEXED_CHECK(pl, index);
+	PHP_INDEXED_CHECK(pi, index);
 
-	RETURN_BOOL(Z_TYPE(pl->data[index]) != IS_UNDEF);
+	RETURN_BOOL(Z_TYPE(pi->data[index]) != IS_UNDEF);
 } /* }}} */
 
 /* {{{ */
@@ -352,14 +352,14 @@ ZEND_END_ARG_INFO()
 
 PHP_METHOD(Indexed, resize)
 {
-	php_indexed_t *pl = PHP_INDEXED_FETCH(getThis());
+	php_indexed_t *pi = PHP_INDEXED_FETCH(getThis());
 	zend_long resize;
 	
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "l", &resize) != SUCCESS) {
 		return;
 	}
 
-	php_indexed_resize(pl, resize);
+	php_indexed_resize(pi, resize);
 } /* }}} */
 
 /* {{{ */
