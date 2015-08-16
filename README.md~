@@ -2,6 +2,8 @@ Indexed
 ------
 *for educational purposes ONLY ...*
 
+[![Build Status](https://travis-ci.org/krakjoe/indexed.svg)](https://travis-ci.org/krakjoe/indexed)
+
 This extension implements the following abstract:
 
 	class Indexed implements ArrayAccess, Countable {
