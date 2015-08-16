@@ -43,6 +43,8 @@ zend_object_handlers php_indexed_handlers;
 #define PHP_INDEXED_FETCH_FROM(o)	((php_indexed_t*) (((char*)o) - XtOffsetOf(php_indexed_t, std)))
 #define PHP_INDEXED_FETCH(z)		PHP_INDEXED_FETCH_FROM(Z_OBJ_P(z))
 
+#include "php_indexed_iterator.h"
+
 #define PHP_INDEXED_CHECK(pl, i)	do {\
 	if ((i) >= (pl)->size) {\
 		zend_throw_exception_ex(NULL, 0, "index %ld is OOB", (i)); \
@@ -340,7 +342,10 @@ PHP_MINIT_FUNCTION(indexed)
 	Indexed_ce = zend_register_internal_class(&ce);
 	Indexed_ce->create_object = php_indexed_create;
 	zend_class_implements(
-		Indexed_ce, 2, spl_ce_ArrayAccess, spl_ce_Countable);
+		Indexed_ce, 2, 
+		spl_ce_ArrayAccess, 
+		spl_ce_Countable);
+	Indexed_ce->get_iterator = php_indexed_iterator;
 
 	zh = zend_get_std_object_handlers();
 
