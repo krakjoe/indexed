@@ -180,7 +180,7 @@ static inline void php_indexed_set_data(php_indexed_t *pl, HashTable *data) {
 
 /* {{{ */
 ZEND_BEGIN_ARG_INFO_EX(Indexed_construct_arginfo, 0, 0, 1)
-	ZEND_ARG_INFO(0, size)
+	ZEND_ARG_TYPE_INFO(0, size, IS_LONG, 0)
 ZEND_END_ARG_INFO()
 
 PHP_METHOD(Indexed, __construct)
@@ -219,6 +219,7 @@ ZEND_BEGIN_ARG_INFO_EX(Indexed_set_arginfo, 0, 0, 2)
 	ZEND_ARG_INFO(0, index)
 	ZEND_ARG_INFO(0, value)
 ZEND_END_ARG_INFO()
+
 PHP_METHOD(Indexed, offsetSet) {
 	php_indexed_t *pl = PHP_INDEXED_FETCH(getThis());
 	zend_long index;
@@ -241,6 +242,7 @@ PHP_METHOD(Indexed, offsetSet) {
 ZEND_BEGIN_ARG_INFO_EX(Indexed_get_arginfo, 0, 0, 1)
 	ZEND_ARG_INFO(0, index)
 ZEND_END_ARG_INFO()
+
 PHP_METHOD(Indexed, offsetGet) 
 {
 	php_indexed_t *pl = PHP_INDEXED_FETCH(getThis());
@@ -260,6 +262,7 @@ PHP_METHOD(Indexed, offsetGet)
 ZEND_BEGIN_ARG_INFO_EX(Indexed_unset_arginfo, 0, 0, 1)
 	ZEND_ARG_INFO(0, index)
 ZEND_END_ARG_INFO()
+
 PHP_METHOD(Indexed, offsetUnset) 
 {
 	php_indexed_t *pl = PHP_INDEXED_FETCH(getThis());
@@ -281,6 +284,7 @@ PHP_METHOD(Indexed, offsetUnset)
 ZEND_BEGIN_ARG_INFO_EX(Indexed_exists_arginfo, 0, 0, 1)
 	ZEND_ARG_INFO(0, index)
 ZEND_END_ARG_INFO()
+
 PHP_METHOD(Indexed, offsetExists) 
 {
 	php_indexed_t *pl = PHP_INDEXED_FETCH(getThis());
@@ -297,8 +301,9 @@ PHP_METHOD(Indexed, offsetExists)
 
 /* {{{ */
 ZEND_BEGIN_ARG_INFO_EX(Indexed_resize_arginfo, 0, 0, 1)
-	ZEND_ARG_INFO(0, size)
+	ZEND_ARG_TYPE_INFO(0, size, IS_LONG, 0)
 ZEND_END_ARG_INFO()
+
 PHP_METHOD(Indexed, resize)
 {
 	php_indexed_t *pl = PHP_INDEXED_FETCH(getThis());

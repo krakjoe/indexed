@@ -9,10 +9,10 @@ This extension implements the following abstract:
 	class Indexed implements ArrayAccess, Countable {
 		public function __construct(int $size, array $data = []);
 
-		public function __offsetGet(int $index);
-		public function __offsetSet(int $index, $value);
-		public function __offsetExists(int $index);
-		public function __offsetUnset(int $index);
+		public function offsetGet(int $index);
+		public function offsetSet(int $index, $value);
+		public function offsetExists(int $index);
+		public function offsetUnset(int $index);
 
 		public function count() : int;
 
