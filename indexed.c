@@ -33,20 +33,6 @@
 #include "php_indexed_object.h"
 #include "php_indexed_iterator.h"
 
-#define PHP_INDEXED_CHECK(pi, i)	do {\
-	if ((i) >= (pi)->size) {\
-		zend_throw_exception_ex(NULL, 0, "index %ld is OOB", (i)); \
-		return; \
-	} \
-	if ((i) < 0) { \
-		if ((pi)->size + (i) < 0) { \
-			zend_throw_exception_ex(NULL, 0, "index %ld (%d) is OOB", (i), (pi)->size + (i)); \
-			return; \
-		} \
-		(i) = (pi)->size + (i);\
-	} \
-} while(0)
-
 /* {{{ */
 ZEND_BEGIN_ARG_INFO_EX(Indexed_construct_arginfo, 0, 0, 1)
 	ZEND_ARG_TYPE_INFO(0, size, IS_LONG, 0)
@@ -55,16 +41,14 @@ ZEND_END_ARG_INFO()
 
 PHP_METHOD(Indexed, __construct)
 {
-	php_indexed_t *pi = PHP_INDEXED_FETCH(getThis());
-	HashTable     *data = NULL;
+	zend_long size;
+	HashTable *data = NULL;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS(), "l|H", &pi->size, &data) != SUCCESS) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "l|H", &size, &data) != SUCCESS) {
 		return;
 	}
 
-	pi->data = (zval*) ecalloc(sizeof(zval), pi->size);
-
-	php_indexed_set_data(pi, data);	
+	php_indexed_construct(getThis(), size, data);	
 }
 /* }}} */
 
@@ -73,13 +57,12 @@ ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(Indexed_count_arginfo, 0, 0, IS_LONG, NU
 ZEND_END_ARG_INFO()
 
 PHP_METHOD(Indexed, count) {
-	php_indexed_t *pi = PHP_INDEXED_FETCH(getThis());
 
 	if (zend_parse_parameters_none() != SUCCESS) {
 		return;
 	}
 	
-	RETURN_LONG(pi->size);
+	RETURN_LONG(php_indexed_count(getThis()));
 } /* }}} */
 
 /* {{{ */
@@ -89,21 +72,14 @@ ZEND_BEGIN_ARG_INFO_EX(Indexed_set_arginfo, 0, 0, 2)
 ZEND_END_ARG_INFO()
 
 PHP_METHOD(Indexed, offsetSet) {
-	php_indexed_t *pi = PHP_INDEXED_FETCH(getThis());
 	zend_long index;
 	zval *value;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "lz", &index, &value) != SUCCESS) {
 		return;
 	}
-
-	PHP_INDEXED_CHECK(pi, index);
-
-	if (Z_TYPE(pi->data[index]) != IS_UNDEF) {
-		zval_ptr_dtor(&pi->data[index]);
-	}
-
-	ZVAL_COPY(&pi->data[index], value);
+	
+	php_indexed_set(getThis(), index, value);
 } /* }}} */
 
 /* {{{ */
@@ -113,17 +89,13 @@ ZEND_END_ARG_INFO()
 
 PHP_METHOD(Indexed, offsetGet) 
 {
-	php_indexed_t *pi = PHP_INDEXED_FETCH(getThis());
 	zend_long index;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "l", &index) != SUCCESS) {
 		return;
 	}
-	
-	PHP_INDEXED_CHECK(pi, index);
 
-	if (Z_TYPE(pi->data[index]) != IS_UNDEF)
-		ZVAL_COPY(return_value, &pi->data[index]);
+	php_indexed_get(getThis(), index, return_value);	
 } /* }}} */
 
 /* {{{ */
@@ -133,19 +105,13 @@ ZEND_END_ARG_INFO()
 
 PHP_METHOD(Indexed, offsetUnset) 
 {
-	php_indexed_t *pi = PHP_INDEXED_FETCH(getThis());
 	zend_long index;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "l", &index) != SUCCESS) {
 		return;
 	}
-	
-	PHP_INDEXED_CHECK(pi, index);
-	
-	if (Z_TYPE(pi->data[index]) != IS_UNDEF) {
-		zval_ptr_dtor(&pi->data[index]);
-		ZVAL_UNDEF(&pi->data[index]);
-	}
+
+	php_indexed_unset(getThis(), index);	
 } /* }}} */
 
 /* {{{ */
@@ -155,16 +121,13 @@ ZEND_END_ARG_INFO()
 
 PHP_METHOD(Indexed, offsetExists) 
 {
-	php_indexed_t *pi = PHP_INDEXED_FETCH(getThis());
 	zend_long index;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "l", &index) != SUCCESS) {
 		return;
 	}
-	
-	PHP_INDEXED_CHECK(pi, index);
 
-	RETURN_BOOL(Z_TYPE(pi->data[index]) != IS_UNDEF);
+	php_indexed_exists(getThis(), index, return_value);
 } /* }}} */
 
 /* {{{ */
@@ -174,14 +137,13 @@ ZEND_END_ARG_INFO()
 
 PHP_METHOD(Indexed, resize)
 {
-	php_indexed_t *pi = PHP_INDEXED_FETCH(getThis());
 	zend_long resize;
 	
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "l", &resize) != SUCCESS) {
 		return;
 	}
 
-	php_indexed_resize(pi, resize);
+	php_indexed_resize(getThis(), resize);
 } /* }}} */
 
 /* {{{ */

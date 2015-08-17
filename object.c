@@ -34,6 +34,20 @@
 
 static zend_object_handlers php_indexed_handlers;
 
+#define PHP_INDEXED_CHECK(pi, i)	do {\
+	if ((i) >= (pi)->size) {\
+		zend_throw_exception_ex(NULL, 0, "index %ld is OOB", (i)); \
+		return; \
+	} \
+	if ((i) < 0) { \
+		if ((pi)->size + (i) < 0) { \
+			zend_throw_exception_ex(NULL, 0, "index %ld (%d) is OOB", (i), (pi)->size + (i)); \
+			return; \
+		} \
+		(i) = (pi)->size + (i);\
+	} \
+} while(0)
+
 /* {{{ */
 zend_object* php_indexed_create(zend_class_entry *ce) {
 	php_indexed_t *pi = 
@@ -44,6 +58,85 @@ zend_object* php_indexed_create(zend_class_entry *ce) {
 	pi->std.handlers = &php_indexed_handlers;	
 
 	return &pi->std;
+} /* }}} */
+
+/* {{{ */
+static inline void php_indexed_set_data(zval *indexed, HashTable *data) {
+	php_indexed_t *pi = PHP_INDEXED_FETCH(indexed);
+	zval      *item;
+	zval      *items;
+
+	if (!data)
+		return;
+
+	if (pi->size < zend_hash_num_elements(data))
+		php_indexed_resize(indexed, zend_hash_num_elements(data));
+
+	items = pi->data;
+
+	ZEND_HASH_FOREACH_VAL(data, item) {
+		ZVAL_COPY(items++, item);
+	} ZEND_HASH_FOREACH_END();
+} /* }}} */
+
+/* {{{ */
+void php_indexed_construct(zval *indexed, zend_long size, HashTable *data) {
+	php_indexed_t *pi = PHP_INDEXED_FETCH(indexed);
+
+	pi->size = size;
+	pi->data = (zval*) ecalloc(sizeof(zval), pi->size);
+
+	if (data)
+		php_indexed_set_data(indexed, data);	
+} /* }}} */
+
+/* {{{ */
+zend_long php_indexed_count(zval *indexed) {
+	return PHP_INDEXED_FETCH(indexed)->size;
+} /* }}} */
+
+/* {{{ */
+void php_indexed_set(zval *indexed, zend_long index, zval *value) {
+	php_indexed_t *pi = PHP_INDEXED_FETCH(indexed);
+
+	PHP_INDEXED_CHECK(pi, index);
+
+	if (Z_TYPE(pi->data[index]) != IS_UNDEF) {
+		zval_ptr_dtor(&pi->data[index]);
+	}
+
+	ZVAL_COPY(&pi->data[index], value);
+} /* }}} */
+
+/* {{{ */
+void php_indexed_get(zval *indexed, zend_long index, zval *return_value) {
+	php_indexed_t *pi = PHP_INDEXED_FETCH(indexed);
+
+	PHP_INDEXED_CHECK(pi, index);
+
+	if (Z_TYPE(pi->data[index]) != IS_UNDEF)
+		ZVAL_COPY(return_value, &pi->data[index]);
+} /* }}} */
+
+/* {{{ */
+void php_indexed_unset(zval *indexed, zend_long index) {
+	php_indexed_t *pi = PHP_INDEXED_FETCH(indexed);
+
+	PHP_INDEXED_CHECK(pi, index);
+	
+	if (Z_TYPE(pi->data[index]) != IS_UNDEF) {
+		zval_ptr_dtor(&pi->data[index]);
+		ZVAL_UNDEF(&pi->data[index]);
+	}
+} /* }}} */
+
+/* {{{ */
+void php_indexed_exists(zval *indexed, zend_long index, zval *return_value) {
+	php_indexed_t *pi = PHP_INDEXED_FETCH(indexed);
+
+	PHP_INDEXED_CHECK(pi, index);
+
+	RETURN_BOOL(Z_TYPE(pi->data[index]) != IS_UNDEF);
 } /* }}} */
 
 /* {{{ */
@@ -138,26 +231,28 @@ static inline int php_indexed_cast(zval *indexed, zval *retval, int type) {
 		"properties on Indexed objects are not allowed"); \
 } while(0)
 
-static inline zval* php_indexed_read(zval *object, zval *member, int type, void **cache_slot, zval *rv) {
+static inline zval* php_indexed_property_read(zval *object, zval *member, int type, void **cache_slot, zval *rv) {
 	PHP_INDEXED_NO_PROPERTIES();
 	return &EG(uninitialized_zval);
 }
 
-static inline void php_indexed_write(zval *object, zval *member, zval *value, void **cache_slot) {
+static inline void php_indexed_property_write(zval *object, zval *member, zval *value, void **cache_slot) {
 	PHP_INDEXED_NO_PROPERTIES();
 }
 
-static inline int php_indexed_exists(zval *object, zval *member, int has_set_exists, void **cache_slot) {
+static inline int php_indexed_property_exists(zval *object, zval *member, int has_set_exists, void **cache_slot) {
 	PHP_INDEXED_NO_PROPERTIES();
 	return 0;
 }
 
-static inline void php_indexed_unset(zval *object, zval *member, void **cache_slot) {
+static inline void php_indexed_property_unset(zval *object, zval *member, void **cache_slot) {
 	PHP_INDEXED_NO_PROPERTIES();
 } /* }}} */
 
 /* {{{ */
-void php_indexed_resize(php_indexed_t *pi, zend_long resize) {
+void php_indexed_resize(zval *indexed, zend_long resize) {
+	php_indexed_t *pi = PHP_INDEXED_FETCH(indexed);
+
 	while (resize < pi->size) {
 		if (Z_TYPE(pi->data[pi->size-1]) != IS_UNDEF)
 			zval_ptr_dtor(&pi->data[pi->size-1]);
@@ -186,24 +281,6 @@ void php_indexed_flip(zval *indexed, zval *retval) {
 		ZVAL_COPY(&pf->data[(pf->size) - it], &pi->data[it - 1]);
 } /* }}} */
 
-/* {{{ */
-void php_indexed_set_data(php_indexed_t *pi, HashTable *data) {
-	zval      *item;
-	zval      *items;
-
-	if (!data)
-		return;
-
-	if (pi->size < zend_hash_num_elements(data))
-		php_indexed_resize(pi, zend_hash_num_elements(data));
-
-	items = pi->data;
-
-	ZEND_HASH_FOREACH_VAL(data, item) {
-		ZVAL_COPY(items++, item);
-	} ZEND_HASH_FOREACH_END();
-} /* }}} */
-
 void php_indexed_minit(void) {
 	zend_object_handlers *zh = zend_get_std_object_handlers();
 
@@ -215,10 +292,10 @@ void php_indexed_minit(void) {
 	php_indexed_handlers.clone_obj = php_indexed_clone;
 	php_indexed_handlers.cast_object = php_indexed_cast;
 
-	php_indexed_handlers.read_property = php_indexed_read;
-	php_indexed_handlers.write_property = php_indexed_write;
-	php_indexed_handlers.has_property = php_indexed_exists;
-	php_indexed_handlers.unset_property = php_indexed_unset;
+	php_indexed_handlers.read_property = php_indexed_property_read;
+	php_indexed_handlers.write_property = php_indexed_property_write;
+	php_indexed_handlers.has_property = php_indexed_property_exists;
+	php_indexed_handlers.unset_property = php_indexed_property_unset;
 
 	php_indexed_handlers.get_properties = NULL;
 
