@@ -32,6 +32,7 @@
 
 static zend_object_handlers php_indexed_handlers;
 extern zend_function_entry Indexed_methods[];
+extern zend_object_iterator* php_indexed_iterator(zend_class_entry *ce, zval *indexed, int by_ref);
 
 #define PHP_INDEXED_CHECK(pi, i)	do {\
 	if ((i) >= (pi)->size) {\
@@ -139,6 +140,38 @@ void php_indexed_exists(zval *indexed, zend_long index, zval *return_value) {
 } /* }}} */
 
 /* {{{ */
+void php_indexed_resize(zval *indexed, zend_long resize) {
+	php_indexed_t *pi = PHP_INDEXED_FETCH(indexed);
+
+	while (resize < pi->size) {
+		if (Z_TYPE(pi->data[pi->size-1]) != IS_UNDEF)
+			zval_ptr_dtor(&pi->data[pi->size-1]);
+		pi->size--;
+	}
+
+	pi->data = erealloc(pi->data, sizeof(zval) * resize);
+
+	while (pi->size < resize)
+		ZVAL_UNDEF(&pi->data[pi->size++]);
+} /* }}} */
+
+/* {{{ */
+void php_indexed_flip(zval *indexed, zval *retval) {
+	php_indexed_t *pi = PHP_INDEXED_FETCH(indexed), 
+		      *pf;
+	zend_long it;
+
+	object_init_ex(retval, pi->std.ce);
+
+	pf = PHP_INDEXED_FETCH(retval);
+	pf->size = pi->size;
+	pf->data = (zval*) ecalloc(pf->size, sizeof(zval));
+
+	for (it = pf->size; it > 0; it--)
+		ZVAL_COPY(&pf->data[(pf->size) - it], &pi->data[it - 1]);
+} /* }}} */
+
+/* {{{ */
 static void php_indexed_free(zend_object *o) {
 	php_indexed_t *pi = PHP_INDEXED_FETCH_FROM(o);
 	
@@ -222,38 +255,6 @@ static int php_indexed_cast(zval *indexed, zval *retval, int type) {
 	}
 
 	return SUCCESS;
-} /* }}} */
-
-/* {{{ */
-void php_indexed_resize(zval *indexed, zend_long resize) {
-	php_indexed_t *pi = PHP_INDEXED_FETCH(indexed);
-
-	while (resize < pi->size) {
-		if (Z_TYPE(pi->data[pi->size-1]) != IS_UNDEF)
-			zval_ptr_dtor(&pi->data[pi->size-1]);
-		pi->size--;
-	}
-
-	pi->data = erealloc(pi->data, sizeof(zval) * resize);
-
-	while (pi->size < resize)
-		ZVAL_UNDEF(&pi->data[pi->size++]);
-} /* }}} */
-
-/* {{{ */
-void php_indexed_flip(zval *indexed, zval *retval) {
-	php_indexed_t *pi = PHP_INDEXED_FETCH(indexed), 
-		      *pf;
-	zend_long it;
-
-	object_init_ex(retval, pi->std.ce);
-
-	pf = PHP_INDEXED_FETCH(retval);
-	pf->size = pi->size;
-	pf->data = (zval*) ecalloc(pf->size, sizeof(zval));
-
-	for (it = pf->size; it > 0; it--)
-		ZVAL_COPY(&pf->data[(pf->size) - it], &pi->data[it - 1]);
 } /* }}} */
 
 /* {{{ */

@@ -205,7 +205,7 @@ PHP_MINFO_FUNCTION(indexed)
  */
 zend_module_entry indexed_module_entry = {
 	STANDARD_MODULE_HEADER,
-	"indexed",
+	PHP_INDEXED_EXTNAME,
 	NULL,
 	PHP_MINIT(indexed),
 	NULL,

@@ -25,14 +25,7 @@ extern zend_module_entry indexed_module_entry;
 #define phpext_indexed_ptr &indexed_module_entry
 
 #define PHP_INDEXED_VERSION "0.0.1"
-
-#ifdef PHP_WIN32
-#	define PHP_INDEXED_API __declspec(dllexport)
-#elif defined(__GNUC__) && __GNUC__ >= 4
-#	define PHP_INDEXED_API __attribute__ ((visibility("default")))
-#else
-#	define PHP_INDEXED_API
-#endif
+#define PHP_INDEXED_EXTNAME "indexed"
 
 #ifdef ZTS
 #include "TSRM.h"
