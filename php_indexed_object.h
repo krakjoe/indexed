@@ -31,7 +31,7 @@ zend_class_entry *Indexed_ce;
 #define PHP_INDEXED_FETCH_FROM(o)	((php_indexed_t*) (((char*)o) - XtOffsetOf(php_indexed_t, std)))
 #define PHP_INDEXED_FETCH(z)		PHP_INDEXED_FETCH_FROM(Z_OBJ_P(z))
 
-void php_indexed_minit(void);
+void php_indexed_init(void);
 
 zend_object* php_indexed_create(zend_class_entry *ce);
 void php_indexed_construct(zval *indexed, zend_long size, HashTable *data);
