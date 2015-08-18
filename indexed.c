@@ -23,13 +23,9 @@
 #endif
 
 #include "php.h"
-#include "php_ini.h"
 #include "ext/standard/info.h"
+
 #include "php_indexed.h"
-
-#include "zend_interfaces.h"
-#include "ext/spl/spl_iterators.h"
-
 #include "php_indexed_object.h"
 
 /* {{{ */

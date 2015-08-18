@@ -25,13 +25,11 @@
 #endif
 
 #include "php.h"
-#include "php_ini.h"
-#include "ext/standard/info.h"
-#include "php_indexed_object.h"
-#include "php_indexed_iterator.h"
-
 #include "zend_interfaces.h"
 #include "ext/spl/spl_iterators.h"
+
+#include "php_indexed_object.h"
+#include "php_indexed_iterator.h"
 
 static zend_object_handlers php_indexed_handlers;
 extern zend_function_entry Indexed_methods[];
