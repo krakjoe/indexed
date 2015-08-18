@@ -27,12 +27,14 @@
 #include "php.h"
 #include "php_indexed_object.h"
 
+/* {{{ */
 typedef struct _php_indexed_iterator_t {
 	zend_object_iterator it;
 	zval indexed;
 	zend_long pos;
-} php_indexed_iterator_t;
+} php_indexed_iterator_t; /* }}} */
 
+/* {{{ */
 static php_indexed_iterator_dtor(php_indexed_iterator_t *pi) {
 	zval_ptr_dtor(&pi->indexed);
 }
@@ -63,8 +65,9 @@ static zend_object_iterator_funcs php_indexed_iterator_funcs = {
 	(zval* (*)(zend_object_iterator *))		php_indexed_iterator_current_data,
 	(void (*)(zend_object_iterator *, zval *))	php_indexed_iterator_current_key,
 	(void (*)(zend_object_iterator *))		php_indexed_iterator_move_forward
-};
+}; /* }}} */
 
+/* {{{ */
 zend_object_iterator* php_indexed_iterator(zend_class_entry *ce, zval *indexed, int by_ref) {
 	php_indexed_iterator_t *pi = (php_indexed_iterator_t*) emalloc(sizeof(php_indexed_iterator_t));
 
@@ -78,3 +81,4 @@ zend_object_iterator* php_indexed_iterator(zend_class_entry *ce, zval *indexed, 
 	return (zend_object_iterator*) pi;
 } /* }}} */
 #endif
+

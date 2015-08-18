@@ -24,18 +24,22 @@ typedef struct _php_indexed_t {
 	zval        *data;
 	zend_long    size;
 	zend_object  std;
-} php_indexed_t;
-
-zend_class_entry *Indexed_ce;
+} php_indexed_t; 
 
 #define PHP_INDEXED_FETCH_FROM(o)	((php_indexed_t*) (((char*)o) - XtOffsetOf(php_indexed_t, std)))
-#define PHP_INDEXED_FETCH(z)		PHP_INDEXED_FETCH_FROM(Z_OBJ_P(z))
+#define PHP_INDEXED_FETCH(z)		PHP_INDEXED_FETCH_FROM(Z_OBJ_P(z)) /* }}} */
 
-void php_indexed_init(void);
+/* {{{ */
+zend_class_entry *Indexed_ce; /* }}} */
 
+/* {{{ */
+void php_indexed_init(void); /*}}} */
+
+/* {{{ */
 zend_object* php_indexed_create(zend_class_entry *ce);
-zend_object_iterator* php_indexed_iterator(zend_class_entry *ce, zval *indexed, int by_ref);
+zend_object_iterator* php_indexed_iterator(zend_class_entry *ce, zval *indexed, int by_ref); /* }}} */
 
+/* {{{ */
 void php_indexed_construct(zval *indexed, zend_long size, HashTable *data);
 zend_long php_indexed_count(zval *indexed);
 void php_indexed_set(zval *indexed, zend_long index, zval *value);
@@ -43,6 +47,6 @@ void php_indexed_get(zval *indexed, zend_long index, zval *value);
 void php_indexed_unset(zval *indexed, zend_long index);
 void php_indexed_exists(zval *indexed, zend_long index, zval *return_value);
 void php_indexed_resize(zval *indexed, zend_long resize);
-void php_indexed_flip(zval *indexed, zval *retval);
+void php_indexed_flip(zval *indexed, zval *retval); /* }}} */
 #endif
 
