@@ -29,7 +29,6 @@
 #include "ext/spl/spl_iterators.h"
 
 #include "php_indexed_object.h"
-#include "php_indexed_iterator.h"
 
 static zend_object_handlers php_indexed_handlers;
 extern zend_function_entry Indexed_methods[];

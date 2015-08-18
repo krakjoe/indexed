@@ -34,6 +34,8 @@ zend_class_entry *Indexed_ce;
 void php_indexed_init(void);
 
 zend_object* php_indexed_create(zend_class_entry *ce);
+zend_object_iterator* php_indexed_iterator(zend_class_entry *ce, zval *indexed, int by_ref);
+
 void php_indexed_construct(zval *indexed, zend_long size, HashTable *data);
 zend_long php_indexed_count(zval *indexed);
 void php_indexed_set(zval *indexed, zend_long index, zval *value);
@@ -43,3 +45,4 @@ void php_indexed_exists(zval *indexed, zend_long index, zval *return_value);
 void php_indexed_resize(zval *indexed, zend_long resize);
 void php_indexed_flip(zval *indexed, zval *retval);
 #endif
+

@@ -25,9 +25,13 @@
 #endif
 
 #include "php.h"
-
 #include "php_indexed_object.h"
-#include "php_indexed_iterator.h"
+
+typedef struct _php_indexed_iterator_t {
+	zend_object_iterator it;
+	zval indexed;
+	zend_long pos;
+} php_indexed_iterator_t;
 
 static php_indexed_iterator_dtor(php_indexed_iterator_t *pi) {
 	zval_ptr_dtor(&pi->indexed);
