@@ -8,7 +8,7 @@ php_indexed.h
 
  - extern the module entry and define pointer
  - include TSRM
-  - define TSRMLS cache extern
+ - define TSRMLS cache extern
 
 indexed.c
 ---------
