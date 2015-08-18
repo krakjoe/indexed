@@ -14,8 +14,8 @@ indexed.c
 ---------
 
  - module code: arginfo and method pairs
- - module entry
  - module functions
+ - module entry
 
 php_indexed_object.h
 --------------------
@@ -38,7 +38,7 @@ object.c
    - clone_object
    - cast_object
    - read/write/isset/unset properties (dummies)
- - implement initialization routine, uses static handlers, wires everything together in register class entry
+ - implement initialization routine, uses static handlers, wires everything together
 
 iterator.c
 ----------
