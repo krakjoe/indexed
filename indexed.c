@@ -31,7 +31,6 @@
 #include "ext/spl/spl_iterators.h"
 
 #include "php_indexed_object.h"
-#include "php_indexed_iterator.h"
 
 /* {{{ */
 ZEND_BEGIN_ARG_INFO_EX(Indexed_construct_arginfo, 0, 0, 1)
@@ -56,7 +55,8 @@ PHP_METHOD(Indexed, __construct)
 ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(Indexed_count_arginfo, 0, 0, IS_LONG, NULL, 1)
 ZEND_END_ARG_INFO()
 
-PHP_METHOD(Indexed, count) {
+PHP_METHOD(Indexed, count)
+{
 
 	if (zend_parse_parameters_none() != SUCCESS) {
 		return;
@@ -71,7 +71,8 @@ ZEND_BEGIN_ARG_INFO_EX(Indexed_set_arginfo, 0, 0, 2)
 	ZEND_ARG_INFO(0, value)
 ZEND_END_ARG_INFO()
 
-PHP_METHOD(Indexed, offsetSet) {
+PHP_METHOD(Indexed, offsetSet) 
+{
 	zend_long index;
 	zval *value;
 
@@ -161,7 +162,7 @@ PHP_METHOD(Indexed, flip)
 /* }}} */
 
 /* {{{ */
-static zend_function_entry Indexed_methods[] = {
+zend_function_entry Indexed_methods[] = {
 	PHP_ME(Indexed, __construct,  Indexed_construct_arginfo, ZEND_ACC_PUBLIC)
 	PHP_ME(Indexed, count,        Indexed_count_arginfo,     ZEND_ACC_PUBLIC)
 	PHP_ME(Indexed, offsetSet,    Indexed_set_arginfo,	 ZEND_ACC_PUBLIC)
@@ -177,20 +178,8 @@ static zend_function_entry Indexed_methods[] = {
  */
 PHP_MINIT_FUNCTION(indexed)
 {
-	zend_class_entry ce;
-	
-	INIT_CLASS_ENTRY(ce, "Indexed", Indexed_methods);
-	Indexed_ce = zend_register_internal_class(&ce);
-	Indexed_ce->create_object = php_indexed_create;
-	Indexed_ce->get_iterator = php_indexed_iterator;
-	Indexed_ce->ce_flags |= ZEND_ACC_FINAL;
+	php_indexed_init();
 
-	zend_class_implements(
-		Indexed_ce, 2,
-		spl_ce_ArrayAccess, spl_ce_Countable);
-
-	php_indexed_minit();
-	
 	return SUCCESS;
 }
 /* }}} */
