@@ -17,8 +17,7 @@
 */
 
 /* $Id$ */
-#ifndef HAVE_INDEXED_ITERATOR
-#define HAVE_INDEXED_ITERATOR
+
 /* {{{ */
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -80,5 +79,4 @@ zend_object_iterator* php_indexed_iterator(zend_class_entry *ce, zval *indexed, 
 
 	return (zend_object_iterator*) pi;
 } /* }}} */
-#endif
 

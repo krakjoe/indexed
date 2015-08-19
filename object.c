@@ -17,8 +17,6 @@
 */
 
 /* $Id$ */
-#ifndef HAVE_INDEXED_OBJECT
-#define HAVE_INDEXED_OBJECT
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -315,5 +313,4 @@ void php_indexed_init(void) {
 
 	php_indexed_handlers.offset = XtOffsetOf(php_indexed_t, std);
 } /* }}} */
-#endif
 
