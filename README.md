@@ -11,8 +11,8 @@ This extension implements the following abstract:
 		public function offsetGet(int $index);
 		public function offsetSet(int $index, $value);
 		public function offsetExists(int $index) : bool;
-		public function offsetUnset(int $index);
 
+		public function offsetUnset(int $index);
 		/* for Countable */
 		public function count() : int;
 
@@ -32,3 +32,5 @@ This touches upon all of the following Zend subjects:
  - implementing cloning
  - implementing iteration
  - testing
+
+[Here is a screencast discussing the extension, thanks to Edd Mann from Three Devs and a Maybe](https://www.youtube.com/watch?v=AloIn2t7bWc)
